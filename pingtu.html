@@ -1,0 +1,160 @@
+<html>
+
+<head>
+    <title>拼图</title>
+    <script type="text/javascript" src="./jszip.js"></script>
+    <script type="text/javascript" src="./FileSaver.js"></script>
+    <style>
+        @font-face {
+            font-family: 'al';
+            src: url('./SourceHanSansCN-Medium.otf');
+        }
+
+        @font-face {
+            font-family: 'al2';
+            src: url('./alibaba2.ttf');
+        }
+
+        body {
+            margin: 0px;
+            background-color: #1c1d2a;
+            text-align: center;
+        }
+
+        .dbg {
+            width: 200px;
+            height: 120px;
+            text-align: center;
+            margin: 0px auto;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            -moz-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            -o-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        .pbi {
+            width: 200px;
+            height: 50px;
+            border-radius: 25px;
+            -moz-border-radius: 25px;
+            -webkit-border-radius: 25px;
+            border: 0px;
+            outline: none;
+            line-height: 22px;
+            text-align: center;
+            font-family: "al";
+            font-size: 22px;
+            position: relative;
+
+            display: -webkit-box;
+            -webkit-box-orient: horizontal;
+            -webkit-box-pack: center;
+            -webkit-box-align: center;
+
+            display: -moz-box;
+            -moz-box-orient: horizontal;
+            -moz-box-pack: center;
+            -moz-box-align: center;
+
+            display: -o-box;
+            -o-box-orient: horizontal;
+            -o-box-pack: center;
+            -o-box-align: center;
+
+            display: -ms-box;
+            -ms-box-orient: horizontal;
+            -ms-box-pack: center;
+            -ms-box-align: center;
+
+            display: box;
+            box-orient: horizontal;
+            box-pack: center;
+            box-align: center;
+
+        }
+
+        .pb:hover {
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="dbg">
+        <input class="pbi" id="pbi" type="text" style="background-color: #fff;color: #000;" value="热卖家居服">
+        <div class="pbi pb" onclick="pfic()" style="background-color: #b331d4;color: #fff;top: 20px;">上传图片</div>
+    </div>
+    <form id="pform" action="" method="POST" enctype="multipart/form-data">
+        <input id="pfi" onchange="pzz(this.files)" type="file" multiple="multiple" style="display: none;">
+    </form>
+</body>
+<script>
+    
+    var pbi = document.getElementById("pbi")
+    var pfi = document.getElementById("pfi")
+    function pfic() {
+        pfi.click()
+    }
+
+    function pzz(file) {
+        var reader = []
+        var pp = []
+        var pr = []
+        var ps = []
+        var rflag = 0
+        var pflag = 0
+        var fl = file.length
+        var can = document.createElement("canvas")
+        can.width = 790
+        can.height = 126 + Math.ceil(fl / 3) * 286
+        var canc = can.getContext("2d")
+        canc.fillStyle = "#fff"
+        canc.fillRect(0, 0, 790, 126 + Math.ceil(fl / 3) * 286)
+        canc.fillStyle = "#000"
+        canc.font = "25px al"
+        canc.textAlign = "center"
+        canc.textBaseline = "middle"
+        canc.fillText(pbi.value, 400, 51)
+        canc.font = "20px al"
+        canc.textBaseline = "top"
+
+        for (var i = 0; i < fl; i++) {
+            reader[i] = new FileReader()
+            reader[i].readAsDataURL(file[i])
+            reader[i].onload = function () {
+                rflag++
+                if (rflag == fl) {
+                    for (var j = 0; j < fl; j++) {
+                        pr[j] = reader[j].result
+                        pp[j] = new Image()
+                        pp[j].src = pr[j]
+                        pp[j].onload = function () {
+                            pflag++
+                            if (pflag == fl) {
+                                for (var k = 0; k < fl; k++) {
+                                    canc.drawImage(pp[k], 39 + (k % 3) * 238, 106 + Math.floor(k / 3) * 286, 236, 236)
+                                    canc.fillText("款号：" + file[k].name.split(".")[0].split("_")[0], 157 + (k % 3) * 238, 350 + Math.floor(k / 3) * 286)
+                                }
+                                var pdata = can.toDataURL("image/jpeg", 0.96).split(',')[1]
+                                var zip = new JSZip()
+                                zip.file("拼图.jpg", pdata, { base64: true })
+                                zip.generateAsync({ type: "blob" }).then(function (content) {
+                                    saveAs(content, "拼图.zip")
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+</script>
+
+</html>
